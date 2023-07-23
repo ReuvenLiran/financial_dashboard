@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "build": "rollup -w -p @rollup/plugin-node-resolve -i src/index.js -o bundle.js"
+  },
+  "dependencies": {
+    "@rollup/plugin-node-resolve": "^15.1.0",
+    "chart.js": "4.3.0",
+    "materialize-css": "1.0.0-rc.2",
+    "rollup": "^3.26.3"
+  }
+}

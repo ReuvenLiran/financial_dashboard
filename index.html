@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body {
+        background-color: #202020;
+        color: white;
+      }
+
+      .row {
+        height: 500px;
+        display: flex;
+        flex-direction: row;
+        margin-bottom: 300px;
+        justify-content: center;
+        align-items: flex-start;
+        overflow: hidden;
+      }
+
+      .chart-doughnut {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 300px;
+        width: 350px;
+        margin-right: 20px;
+      }
+
+      .chart-bar {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 400px;
+        width: 800px;
+        margin-right: 20px;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      
+      hr {
+        width: calc(100% - 200px);
+      }
+    </style>
+
+       <!--Import Google Icon Font-->
+       <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+       <!--Import materialize.css-->
+       <link type="text/css" rel="stylesheet" href="node_modules/materialize-css/dist/css/materialize.min.css"  media="screen,projection"/>
+ 
+  </head>
+
+  <body>
+    <div class="charts">
+      <h3 class="header">Progress and Goals</h3>
+      <hr></hr>
+      <div class="row">
+        <div class="chart-doughnut">
+          <h4 class="header">Investment</h4>
+          <canvas id="chart-doughnut-progress-invested-money"> </canvas>
+        </div>
+
+        <div class="chart-doughnut">
+          <h4 class="header">Passive Profit</h4>
+          <canvas id="chart-doughnut-profit-progress"> </canvas>
+        </div>
+
+        <div class="chart-doughnut">
+          <h4 class="header">Funds</h4>
+          <canvas id="chart-doughnut-total-money-progress"> </canvas>
+        </div>
+        <!-- <div class="chart-doughnut">
+          <h4 class="header">profit in precentage</h4>
+          <canvas id="chart-doughnut-profit-progress-in-precentage"> </canvas>
+        </div> -->
+      </div>
+      <h3 class="header">Distribution</h3>
+      <hr></hr>
+
+      <div class="row">
+        <div class="chart-doughnut">
+          <h4 class="header">Investment</h4>
+          <canvas id="chart-doughnut-invested-money-per-investor"> </canvas>
+        </div>
+
+        <div class="chart-doughnut">
+          <h4 class="header">Profit</h4>
+          <canvas id="chart-doughnut-current-year-profit"> </canvas>
+        </div>
+
+        <div class="chart-doughnut">
+          <h4 class="header">Funds</h4>
+          <canvas id="chart-doughnut-total-money"> </canvas>
+        </div>
+      </div>
+
+      <h4 class="header">Performace of Investment Channels</h4>
+      <hr></hr>
+
+      <div class="row">
+        <div class="chart-bar">
+          <h4 class="header">Yields of Current Year</h4>
+          <canvas id="chart-bar-yield"> </canvas>
+        </div>
+        <div class="chart-bar">
+          <h4 class="header">Real Yield of Current Year</h4>
+          <canvas id="chart-bar-current-year-profit-in-precentage"> </canvas>
+        </div>
+      </div>
+    </div>
+
+    <script src="./bundle.js"></script>
+  </body>
+</html>
