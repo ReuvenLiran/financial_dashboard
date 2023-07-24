@@ -1,105 +1,229 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <style>
-      body {
-        background-color: #202020;
-        color: white;
-      }
 
-      .row {
-        height: 500px;
-        display: flex;
-        flex-direction: row;
-        margin-bottom: 300px;
-        justify-content: center;
-        align-items: flex-start;
-        overflow: hidden;
-      }
+<head>
+  <style>
+    body {
+      background-color: #202020;
+      color: white;
+    }
 
-      .chart-doughnut {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        height: 300px;
-        width: 350px;
-        margin-right: 20px;
-      }
+    .row {
+      height: 600px;
+      /* margin-bottom: 300px; */
+      /* overflow: hidden; */
+    }
 
-      .chart-bar {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        height: 400px;
-        width: 800px;
-        margin-right: 20px;
-      }
+    .charts {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: flex-start;
+    }
 
-      .header {
-        text-align: center;
-        margin-bottom: 20px;
-      }
-      
-      hr {
-        width: calc(100% - 200px);
-      }
-    </style>
+    .chart-doughnut {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 300px;
+      width: 350px;
+      margin-right: 20px;
+    }
 
-       <!--Import Google Icon Font-->
-       <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-       <!--Import materialize.css-->
-       <link type="text/css" rel="stylesheet" href="node_modules/materialize-css/dist/css/materialize.min.css"  media="screen,projection"/>
- 
-  </head>
+    .chart-bar {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 400px;
+      width: 800px;
+      margin-right: 20px;
+    }
 
-  <body>
-    <div class="charts">
-      <h3 class="header">Progress and Goals</h3>
-      <hr></hr>
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    hr {
+      width: calc(100% - 200px);
+    }
+
+    .view {
+      padding: 10px 30px;
+      position: fixed;
+      top: 0px;
+      left: 0px;
+      width: 500px;
+      height: 100%;
+      background-color: #565656;
+      color: white;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+
+    .charts-container {
+      width: calc(100% - 500px);
+      margin-left: 500px;
+      flex-shrink: 0;
+    }
+
+    #root {
+      display: flex;
+      flex-direction: row;
+    }
+
+    table {
+      font-size: 1.5rem;
+    }
+
+    .legend-color {
+      height: 1.5rem;
+      width: 1.5rem;
+      border: 1px white solid;
+    }
+
+    .chart-bar {
+      height: 700px;
+    }
+
+    .goal {
+      font-weight: bold;
+    }
+  </style>
+
+  <!--Import Google Icon Font-->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <!--Import materialize.css-->
+  <link type="text/css" rel="stylesheet" href="node_modules/materialize-css/dist/css/materialize.min.css"
+    media="screen,projection" />
+
+</head>
+
+<body>
+
+  <div id="root">
+    <div class="view">
+      <h4>Details</h4>
+      <table>
+        <tr>
+          <td>
+            Funds
+          </td>
+          <td id="funds-value">
+            2,000,000
+          </td>
+        </tr>
+        <tr>
+          <td>
+            Profit
+          </td>
+          <td id="profit-value">
+            140,000 (9%)
+          </td>
+        </tr>
+        <tr>
+          <td>
+            SPY
+          </td>
+          <td id="spy-value">
+          </td>
+        </tr>
+        <tr>
+          <td>
+            QQQ
+          </td>
+          <td id="qqq-value">
+          </td>
+        </tr>
+      </table>
+      <h4>Ledgends</h4>
+      <table id="legends">
+
+      </table>
+    </div>
+
+    <div class="charts-container">
       <div class="row">
-        <div class="chart-doughnut">
-          <h4 class="header">Investment</h4>
-          <canvas id="chart-doughnut-progress-invested-money"> </canvas>
-        </div>
+        <h3 class="header">Progress and Goals</h3>
+        <hr>
+        </hr>
+        <div class="charts">
+          <div class="chart-doughnut" id="progress-invested-money">
+            <h4 class="header">Investments</h4>
+            <canvas id="chart-doughnut-progress-invested-money"> </canvas>
+            <h5 class="header goal"></h5>
+          </div>
 
-        <div class="chart-doughnut">
-          <h4 class="header">Passive Profit</h4>
-          <canvas id="chart-doughnut-profit-progress"> </canvas>
-        </div>
+          <div class="chart-doughnut" id="my-yield-vs-goal-progress">
+            <h4 class="header">My Yield vs. SPY</h4>
+            <canvas id="chart-doughnut-my-yield-vs-goal-progress"> </canvas>
+            <h5 class="header goal"></h5>
+          </div>
 
-        <div class="chart-doughnut">
-          <h4 class="header">Funds</h4>
-          <canvas id="chart-doughnut-total-money-progress"> </canvas>
+          <div class="chart-doughnut" id="profit-progress">
+            <h4 class="header">Passive Profit</h4>
+            <canvas id="chart-doughnut-profit-progress"> </canvas>
+            <h5 class="header goal"></h5>
+          </div>
+
+          <div class="chart-doughnut" id="total-money-progress">
+            <h4 class="header">Funds</h4>
+            <canvas id="chart-doughnut-total-money-progress"> </canvas>
+            <h5 class="header goal"></h5>
+          </div>
+          <!-- <div class="chart-doughnut">
+            <h4 class="header">profit in precentage</h4>
+            <canvas id="chart-doughnut-profit-progress-in-precentage"> </canvas>
+          </div> -->
         </div>
-        <!-- <div class="chart-doughnut">
-          <h4 class="header">profit in precentage</h4>
-          <canvas id="chart-doughnut-profit-progress-in-precentage"> </canvas>
-        </div> -->
       </div>
-      <h3 class="header">Distribution</h3>
-      <hr></hr>
 
       <div class="row">
-        <div class="chart-doughnut">
-          <h4 class="header">Investment</h4>
-          <canvas id="chart-doughnut-invested-money-per-investor"> </canvas>
-        </div>
+        <h3 class="header">Distribution</h3>
+        <hr>
+        </hr>
 
-        <div class="chart-doughnut">
-          <h4 class="header">Profit</h4>
-          <canvas id="chart-doughnut-current-year-profit"> </canvas>
-        </div>
+        <div class="charts">
+          <div class="chart-doughnut">
+            <h4 class="header">Investments</h4>
+            <canvas id="chart-doughnut-invested-money-per-investor"> </canvas>
+          </div>
 
-        <div class="chart-doughnut">
-          <h4 class="header">Funds</h4>
-          <canvas id="chart-doughnut-total-money"> </canvas>
+          <div class="chart-doughnut">
+            <h4 class="header">Passive Profit</h4>
+            <canvas id="chart-doughnut-current-year-profit"> </canvas>
+          </div>
+
+          <div class="chart-doughnut">
+            <h4 class="header">Funds</h4>
+            <canvas id="chart-doughnut-total-money"> </canvas>
+          </div>
         </div>
       </div>
 
-      <h4 class="header">Performace of Investment Channels</h4>
-      <hr></hr>
-
       <div class="row">
+        <h3 class="header">Profit</h3>
+        <hr>
+        </hr>
+        <div class="charts">
+          <div class="chart-bar">
+            <h4 class="header">Me vs SPY vs QQQ</h4>
+            <div class="chart-bar">
+              <canvas id="chart-bar-yield-vs-qqq-vs-spy"></canvas>
+            </div>
+          </div>
+          <!-- 
+      <div class="chart-doughnut">
+        <h4 class="header">Profit</h4>
+        <canvas id="chart-doughnut-profit-"> </canvas>
+      </div> -->
+        </div>
+      </div>
+      <!-- <h4 class="header">Performace of Investment Channels</h4>
+      <hr>
+      </hr> -->
+
+      <div class="row" style="display: none;">
         <div class="chart-bar">
           <h4 class="header">Yields of Current Year</h4>
           <canvas id="chart-bar-yield"> </canvas>
@@ -110,7 +234,8 @@
         </div>
       </div>
     </div>
+  </div>
+  <script src="./bundle.js"></script>
+</body>
 
-    <script src="./bundle.js"></script>
-  </body>
 </html>
