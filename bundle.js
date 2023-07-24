@@ -15145,7 +15145,7 @@ function getDistributionCharts({ chartsInvestors }) {
   }, 0);
 
   const sumOfInvestedFunds = investedMoney.reduce((acc, investor) => {
-    acc += parseInt(investedMoney.money);
+    acc += parseInt(investor.money);
     return acc;
   }, 0);
 
