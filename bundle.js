@@ -14732,52 +14732,52 @@ Chart.register(...registerables);
 
 var DATA = {
   profitGoal: 100000,
-  moneyGoal: 2150000,
+  moneyGoal: 2100000,
   averageMonthlyIncome: 10000,
   averageMonthlyExpenses: 9000,
   investors: [
     {
       name: "Harel",
-      money: 607053,
-      yield: 6.18,
+      funds: 607053,
+      interestRate: 6.18,
       expenseRates: 0.85,
     },
     {
       name: "Altshuler - Gemel",
-      money: 127210.65,
-      yield: 4.6,
+      funds: 127210.65,
+      interestRate: 4.6,
       expenseRates: 0.25,
     },
     {
       name: "Bank Pikadon",
-      money: 100000,
-      yield: 4.75,
+      funds: 132000,
+      interestRate: 4.75,
       expenseRates: 0,
     },
     {
       name: "Mor Hishtalmut",
       url: "",
-      money: 168528,
-      yield: 5.33,
+      funds: 168528,
+      interestRate: 5.33,
       expenseRates: 0.7,
     },
     {
       name: "Mor Gemel",
       url: "",
-      money: 287420,
-      yield: 6.3,
+      funds: 287420,
+      interestRate: 6.3,
       expenseRates: 0.7,
     },
     {
       name: "Cash",
-      money: 400000,
-      yield: 0,
+      funds: 340000,
+      interestRate: 0,
       expenseRates: 0,
     },
     {
       name: "Meitav Trade",
-      money: 352000,
-      yield: 21,
+      funds: 352000,
+      interestRate: 21,
       expenseRates: 0,
     },
   ],
@@ -14862,11 +14862,142 @@ const date = new Date();
 const API_KEY = 'N6S96A7YBV0JUZNO';
 const LAST_DAY_OF_LAST_YEAR = `${date.getFullYear() - 1}-12-30`;
 
-let investors = [];
+function getProgressCharts({
+  totalProfit,
+  totalProfitPrecentage,
+  totalMoney,
+  investedMoney,
+  spy,
+}) {
+  return [
+    {
+      key: "mine-interest-rate-vs-goal-progress",
+      type: "gauge",
+      progressValue: totalProfitPrecentage,
+      goal: spy,
+    },
+    {
+      key: "profit-progress",
+      type: "gauge",
+      progressValue: totalProfit,
+      goal: DATA.profitGoal,
+    },
+    // {
+    //   key: "profit-progress-in-precentage",
+    //   type: "gauge",
+    //   progressValue: totalProfitPrecentage,
+    //   remainingValue: 10 - totalProfitPrecentage,
+    // },
+    {
+      key: "total-funds-progress",
+      type: "gauge",
+      goal: DATA.moneyGoal,
+      progressValue: totalMoney,
+    },
+    {
+      key: "progress-invested-funds",
+      type: "gauge",
+      goal: totalMoney,
+      progressValue: investedMoney,
+    },
+  ];
+}
 
-const currentDate = new Date();
-currentDate.getMonth();
-currentDate.getFullYear();
+function getDistributionCharts({ chartsInvestors }) {
+  const getInvestorColor = (data) => chartsInvestors[data.dataIndex].color;
+  const investedMoney = chartsInvestors.filter((i) => i.interestRate > 0);
+  const sumOfFunds = chartsInvestors.reduce((acc, investor) => {
+    acc += parseInt(investor.funds);
+    return acc;
+  }, 0);
+
+  const sumOfProfit = chartsInvestors.reduce((acc, investor) => {
+    acc += parseInt(investor.currentYearProfit);
+    return acc;
+  }, 0);
+
+  const sumOfInvestedFunds = investedMoney.reduce((acc, investor) => {
+    acc += parseInt(investor.funds);
+    return acc;
+  }, 0);
+
+  return [
+    {
+      key: "total-funds",
+      type: "doughnut",
+      data: chartsInvestors,
+      field: "funds",
+      text: sumOfFunds.toLocaleString(),
+      getBackgorundColor: getInvestorColor,
+    },
+    {
+      key: "current-year-profit",
+      type: "doughnut",
+      data: chartsInvestors,
+      text: sumOfProfit.toLocaleString(),
+      field: "currentYearProfit",
+      getBackgorundColor: getInvestorColor,
+    },
+    {
+      key: "invested-funds-per-investor",
+      type: "doughnut",
+      field: "funds",
+      text: sumOfInvestedFunds.toLocaleString(),
+      data: investedMoney,
+      getBackgorundColor: (data) => {
+        return investedMoney[data.dataIndex].color;
+      },
+    },
+  ];
+}
+
+function getProfitPerformanceChart(interestRate, spy, qqq) {
+  return {
+    key: "mine-interest-rate-vs-qqq-vs-spy",
+    type: "bar",
+    data: [
+      {
+        name: "me",
+        value: interestRate,
+      },
+      {
+        name: "SPY",
+        value: spy,
+      },
+      {
+        name: "QQQ",
+        value: qqq,
+      },
+    ],
+    field: "value",
+    getBackgorundColor: (data) => {
+      return COLORS[data.dataIndex];
+    },
+  };
+}
+
+function getBarCharts({ chartsInvestors }) {
+  const getInvestorColor = (data) => chartsInvestors[data.dataIndex].color;
+
+  return [
+    {
+      key: "interest-rate",
+      type: "bar",
+      data: chartsInvestors,
+      field: "interestRate",
+      getBackgorundColor: getInvestorColor,
+    },
+    {
+      key: "current-year-profit-in-precentage",
+      type: "bar",
+      data: chartsInvestors,
+      field: "currentYearProfitInPrecentage",
+      getBackgorundColor: getInvestorColor,
+    },
+  ];
+}
+
+let investors = [];
 
 function calculateInvestmentProfit(amount, yieldPercentage, expenseRate) {
   // Convert the percentage values to decimals
@@ -14920,7 +15051,7 @@ function findLowestAndHighestValues(arr) {
 
 function buildBarChart(chart) {
   const { key, data, field, getBackgorundColor } = chart;
-  console.log("ZZZZZZZZ", data);
+
   const { lowest, highest } = findLowestAndHighestValues(
     data.map((d) => d[field])
   );
@@ -14955,7 +15086,7 @@ function buildBarChart(chart) {
 
 function printLegends(investors) {
   const legendsTable = document.getElementById("legends");
-  const renderCells = (name, profit, myYield, color) => `
+  const renderCells = (name, profit, interestRate, color) => `
   <td>
   <div class="legend-color" style="background-color: ${color};"></div>
   </td>
@@ -14963,7 +15094,7 @@ function printLegends(investors) {
     ${name}
   </td>
   <td id="profit-value">
-    ${parseInt(profit)} (${myYield}%)
+    ${parseInt(profit)} (${interestRate}%)
   </td>
 `;
 
@@ -14972,21 +15103,21 @@ function printLegends(investors) {
     tr.innerHTML = renderCells(
       investor.name,
       investor.currentYearProfit,
-      investor.yield,
+      investor.interestRate,
       investor.color
     );
     legendsTable.appendChild(tr);
   });
 }
 
-function printDetails(funds, profit, myYield, qqq, spy) {
+function printDetails(funds, profit, interestRate, qqq, spy) {
   const fundsElem = document.getElementById("funds-value");
   const profitElem = document.getElementById("profit-value");
   const spyElem = document.getElementById("spy-value");
   const qqqElem = document.getElementById("qqq-value");
 
   fundsElem.textContent = funds;
-  profitElem.textContent = `${profit} (${myYield}%)`;
+  profitElem.textContent = `${profit} (${interestRate}%)`;
   spyElem.textContent = qqq + "%";
   qqqElem.textContent = spy + "%";
 }
@@ -14999,7 +15130,6 @@ function addTextInsideDoughnut(chart, text) {
   ctx.restore();
   var fontSize = (height / 150).toFixed(2);
   ctx.font = fontSize + "em sans-serif";
-  // ctx.strokeStyle = "white";
   ctx.fillStyle = "white";
 
   ctx.textBaseline = "middle";
@@ -15024,9 +15154,6 @@ function buildDougthnutChart(chart) {
           display: true,
         },
         legend: {
-          // labels: {
-          //   color: 'white'
-          // },
           display: false,
         },
       },
@@ -15066,10 +15193,7 @@ function buildGauge(chart) {
     ],
     field: "value",
     getBackgorundColor: (data) =>
-      getColorForProgress(
-        data.dataIndex,
-        progressValue / goal
-      ),
+      getColorForProgress(data.dataIndex, progressValue / goal),
   });
 }
 
@@ -15089,142 +15213,6 @@ function getColorForProgress(index, progress) {
   }
 }
 
-function getProgressCharts({
-  totalProfit,
-  totalProfitPrecentage,
-  totalMoney,
-  investedMoney,
-  spy,
-}) {
-  // console.log(totalProfit/, spy)
-  return [
-    {
-      key: "my-yield-vs-goal-progress",
-      type: "gauge",
-      progressValue: totalProfitPrecentage,
-      goal: spy,
-    },
-    {
-      key: "profit-progress",
-      type: "gauge",
-      progressValue: totalProfit,
-      goal: DATA.profitGoal,
-    },
-    // {
-    //   key: "profit-progress-in-precentage",
-    //   type: "gauge",
-    //   progressValue: totalProfitPrecentage,
-    //   remainingValue: 10 - totalProfitPrecentage,
-    // },
-    {
-      key: "total-money-progress",
-      type: "gauge",
-      goal: DATA.moneyGoal,
-      progressValue: totalMoney,
-    },
-    {
-      key: "progress-invested-money",
-      type: "gauge",
-      goal: totalMoney,
-      progressValue: investedMoney,
-    },
-  ];
-}
-
-function getDistributionCharts({ chartsInvestors }) {
-  const getInvestorColor = (data) => chartsInvestors[data.dataIndex].color;
-  const investedMoney = chartsInvestors.filter((i) => i.yield > 0);
-  const sumOfFunds = chartsInvestors.reduce((acc, investor) => {
-    acc += parseInt(investor.money);
-    return acc;
-  }, 0);
-
-  const sumOfProfit = chartsInvestors.reduce((acc, investor) => {
-    acc += parseInt(investor.currentYearProfit);
-    return acc;
-  }, 0);
-
-  const sumOfInvestedFunds = investedMoney.reduce((acc, investor) => {
-    acc += parseInt(investor.money);
-    return acc;
-  }, 0);
-
-  return [
-    {
-      key: "total-money",
-      type: "doughnut",
-      data: chartsInvestors,
-      field: "money",
-      text: sumOfFunds.toLocaleString(),
-      getBackgorundColor: getInvestorColor,
-    },
-    {
-      key: "current-year-profit",
-      type: "doughnut",
-      data: chartsInvestors,
-      text: sumOfProfit.toLocaleString(),
-      field: "currentYearProfit",
-      getBackgorundColor: getInvestorColor,
-    },
-    {
-      key: "invested-money-per-investor",
-      type: "doughnut",
-      field: "money",
-      text: sumOfInvestedFunds.toLocaleString(),
-      data: investedMoney,
-      getBackgorundColor: (data) => {
-        return investedMoney[data.dataIndex].color;
-      },
-    },
-  ];
-}
-
-function getProfitPerformanceChart(myYield, spy, qqq) {
-  return {
-    key: "yield-vs-qqq-vs-spy",
-    type: "bar",
-    data: [
-      {
-        name: "me",
-        value: myYield,
-      },
-      {
-        name: "SPY",
-        value: spy,
-      },
-      {
-        name: "QQQ",
-        value: qqq,
-      },
-    ],
-    field: "value",
-    getBackgorundColor: (data) => {
-      return COLORS[data.dataIndex];
-    },
-  };
-}
-
-function getBarCharts({ chartsInvestors }) {
-  const getInvestorColor = (data) => chartsInvestors[data.dataIndex].color;
-
-  return [
-    {
-      key: "yield",
-      type: "bar",
-      data: chartsInvestors,
-      field: "yield",
-      getBackgorundColor: getInvestorColor,
-    },
-    {
-      key: "current-year-profit-in-precentage",
-      type: "bar",
-      data: chartsInvestors,
-      field: "currentYearProfitInPrecentage",
-      getBackgorundColor: getInvestorColor,
-    },
-  ];
-}
-
 function init(spy, qqq) {
   investors = DATA.investors || [];
 
@@ -15232,23 +15220,21 @@ function init(spy, qqq) {
   let totalMoney = 0;
   let investedMoney = 0;
 
-  const chartsInvestors = investors
-    // .filter((investor) => investor.money > 0)
-    .map((investor, index) => {
-      const { money, yield: myYield, expenseRates } = investor;
-      investor.currentYearProfit = calculateInvestmentProfit(
-        money,
-        myYield,
-        expenseRates
-      );
-      investor.color = COLORS[index];
-      investor.currentYearProfitInPrecentage =
-        (investor.currentYearProfit / money) * 100;
-      totalProfit += Math.ceil(investor.currentYearProfit);
-      totalMoney += Math.ceil(money);
-      investedMoney += myYield > 0 ? Math.ceil(money) : 0;
-      return investor;
-    });
+  const chartsInvestors = investors.map((investor, index) => {
+    const { funds, interestRate, expenseRates } = investor;
+    investor.currentYearProfit = calculateInvestmentProfit(
+      funds,
+      interestRate,
+      expenseRates
+    );
+    investor.color = COLORS[index];
+    investor.currentYearProfitInPrecentage =
+      (investor.currentYearProfit / funds) * 100;
+    totalProfit += Math.ceil(investor.currentYearProfit);
+    totalMoney += Math.ceil(funds);
+    investedMoney += interestRate > 0 ? Math.ceil(funds) : 0;
+    return investor;
+  });
 
   const totalProfitPrecentage = (
     (totalProfit / (investedMoney - totalProfit)) *
@@ -15346,7 +15332,5 @@ async function fetchSPYData(symbol) {
 }
 
 async function imporantETF() {
-  // return Promise.all([Promise.resolve(11), Promise.resolve(20)]);
-
   return Promise.all([fetchSPYData("SPY"), fetchSPYData("QQQ")]);
 }
