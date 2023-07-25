@@ -236,8 +236,8 @@ function init(spy, qqq) {
   investors = DATA.investors || [];
 
   let totalProfit = 0;
-  let totalMoney = 0;
-  let investedMoney = 0;
+  let totalFunds = 0;
+  let investedFunds = 0;
 
   const chartsInvestors = investors.map((investor, index) => {
     const { funds, interestRate, expenseRates } = investor;
@@ -250,13 +250,13 @@ function init(spy, qqq) {
     investor.currentYearProfitInPrecentage =
       (investor.currentYearProfit / funds) * 100;
     totalProfit += Math.ceil(investor.currentYearProfit);
-    totalMoney += Math.ceil(funds);
-    investedMoney += interestRate > 0 ? Math.ceil(funds) : 0;
+    totalFunds += Math.ceil(funds);
+    investedFunds += interestRate > 0 ? Math.ceil(funds) : 0;
     return investor;
   });
 
   const totalProfitPrecentage = (
-    (totalProfit / (investedMoney - totalProfit)) *
+    (totalProfit / (investedFunds - totalProfit)) *
     100
   ).toFixed(2);
 
@@ -270,8 +270,8 @@ function init(spy, qqq) {
     ...getProgressCharts({
       totalProfit,
       totalProfitPrecentage,
-      totalMoney,
-      investedMoney,
+      totalFunds,
+      investedFunds,
       spy,
     }),
     getProfitPerformanceChart(totalProfitPrecentage, spy, qqq),
@@ -287,7 +287,7 @@ function init(spy, qqq) {
     }
   });
 
-  printDetails(totalMoney, totalProfit, totalProfitPrecentage, spy, qqq);
+  printDetails(totalFunds, totalProfit, totalProfitPrecentage, spy, qqq);
 
   printLegends(chartsInvestors);
 }

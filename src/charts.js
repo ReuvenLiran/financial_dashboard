@@ -4,8 +4,8 @@ import { COLORS } from "./consts";
 export function getProgressCharts({
   totalProfit,
   totalProfitPrecentage,
-  totalMoney,
-  investedMoney,
+  totalFunds,
+  investedFunds,
   spy,
 }) {
   return [
@@ -30,21 +30,21 @@ export function getProgressCharts({
     {
       key: "total-funds-progress",
       type: "gauge",
-      goal: DATA.moneyGoal,
-      progressValue: totalMoney,
+      goal: DATA.fundsGoal,
+      progressValue: totalFunds,
     },
     {
       key: "progress-invested-funds",
       type: "gauge",
-      goal: totalMoney,
-      progressValue: investedMoney,
+      goal: totalFunds,
+      progressValue: investedFunds,
     },
   ];
 }
 
 export function getDistributionCharts({ chartsInvestors }) {
   const getInvestorColor = (data) => chartsInvestors[data.dataIndex].color;
-  const investedMoney = chartsInvestors.filter((i) => i.interestRate > 0);
+  const investedFunds = chartsInvestors.filter((i) => i.interestRate > 0);
   const sumOfFunds = chartsInvestors.reduce((acc, investor) => {
     acc += parseInt(investor.funds);
     return acc;
@@ -55,7 +55,7 @@ export function getDistributionCharts({ chartsInvestors }) {
     return acc;
   }, 0);
 
-  const sumOfInvestedFunds = investedMoney.reduce((acc, investor) => {
+  const sumOfInvestedFunds = investedFunds.reduce((acc, investor) => {
     acc += parseInt(investor.funds);
     return acc;
   }, 0);
@@ -82,9 +82,9 @@ export function getDistributionCharts({ chartsInvestors }) {
       type: "doughnut",
       field: "funds",
       text: sumOfInvestedFunds.toLocaleString(),
-      data: investedMoney,
+      data: investedFunds,
       getBackgorundColor: (data) => {
-        return investedMoney[data.dataIndex].color;
+        return investedFunds[data.dataIndex].color;
       },
     },
   ];

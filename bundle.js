@@ -14732,7 +14732,7 @@ Chart.register(...registerables);
 
 var DATA = {
   profitGoal: 100000,
-  moneyGoal: 2100000,
+  fundsGoal: 2100000,
   averageMonthlyIncome: 10000,
   averageMonthlyExpenses: 9000,
   investors: [
@@ -14865,8 +14865,8 @@ const LAST_DAY_OF_LAST_YEAR = `${date.getFullYear() - 1}-12-30`;
 function getProgressCharts({
   totalProfit,
   totalProfitPrecentage,
-  totalMoney,
-  investedMoney,
+  totalFunds,
+  investedFunds,
   spy,
 }) {
   return [
@@ -14891,21 +14891,21 @@ function getProgressCharts({
     {
       key: "total-funds-progress",
       type: "gauge",
-      goal: DATA.moneyGoal,
-      progressValue: totalMoney,
+      goal: DATA.fundsGoal,
+      progressValue: totalFunds,
     },
     {
       key: "progress-invested-funds",
       type: "gauge",
-      goal: totalMoney,
-      progressValue: investedMoney,
+      goal: totalFunds,
+      progressValue: investedFunds,
     },
   ];
 }
 
 function getDistributionCharts({ chartsInvestors }) {
   const getInvestorColor = (data) => chartsInvestors[data.dataIndex].color;
-  const investedMoney = chartsInvestors.filter((i) => i.interestRate > 0);
+  const investedFunds = chartsInvestors.filter((i) => i.interestRate > 0);
   const sumOfFunds = chartsInvestors.reduce((acc, investor) => {
     acc += parseInt(investor.funds);
     return acc;
@@ -14916,7 +14916,7 @@ function getDistributionCharts({ chartsInvestors }) {
     return acc;
   }, 0);
 
-  const sumOfInvestedFunds = investedMoney.reduce((acc, investor) => {
+  const sumOfInvestedFunds = investedFunds.reduce((acc, investor) => {
     acc += parseInt(investor.funds);
     return acc;
   }, 0);
@@ -14943,9 +14943,9 @@ function getDistributionCharts({ chartsInvestors }) {
       type: "doughnut",
       field: "funds",
       text: sumOfInvestedFunds.toLocaleString(),
-      data: investedMoney,
+      data: investedFunds,
       getBackgorundColor: (data) => {
-        return investedMoney[data.dataIndex].color;
+        return investedFunds[data.dataIndex].color;
       },
     },
   ];
@@ -15217,8 +15217,8 @@ function init(spy, qqq) {
   investors = DATA.investors || [];
 
   let totalProfit = 0;
-  let totalMoney = 0;
-  let investedMoney = 0;
+  let totalFunds = 0;
+  let investedFunds = 0;
 
   const chartsInvestors = investors.map((investor, index) => {
     const { funds, interestRate, expenseRates } = investor;
@@ -15231,13 +15231,13 @@ function init(spy, qqq) {
     investor.currentYearProfitInPrecentage =
       (investor.currentYearProfit / funds) * 100;
     totalProfit += Math.ceil(investor.currentYearProfit);
-    totalMoney += Math.ceil(funds);
-    investedMoney += interestRate > 0 ? Math.ceil(funds) : 0;
+    totalFunds += Math.ceil(funds);
+    investedFunds += interestRate > 0 ? Math.ceil(funds) : 0;
     return investor;
   });
 
   const totalProfitPrecentage = (
-    (totalProfit / (investedMoney - totalProfit)) *
+    (totalProfit / (investedFunds - totalProfit)) *
     100
   ).toFixed(2);
 
@@ -15251,8 +15251,8 @@ function init(spy, qqq) {
     ...getProgressCharts({
       totalProfit,
       totalProfitPrecentage,
-      totalMoney,
-      investedMoney,
+      totalFunds,
+      investedFunds,
       spy,
     }),
     getProfitPerformanceChart(totalProfitPrecentage, spy, qqq),
@@ -15268,7 +15268,7 @@ function init(spy, qqq) {
     }
   });
 
-  printDetails(totalMoney, totalProfit, totalProfitPrecentage, spy, qqq);
+  printDetails(totalFunds, totalProfit, totalProfitPrecentage, spy, qqq);
 
   printLegends(chartsInvestors);
 }
