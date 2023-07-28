@@ -42,8 +42,8 @@ export const COLORS = [
   PINK2,
   BLUE1,
   RED2,
-  PURPLE2,
   GREEN2,
+  PURPLE2,
 
   YELLOW2,
   LIGHT_BLUE1,
@@ -77,5 +77,5 @@ export const COLORS = [
 ];
 const date = new Date();
 
-export const API_KEY = 'N6S96A7YBV0JUZNO';
+export const API_KEY = 'MY_API_KEY';
 export const LAST_DAY_OF_LAST_YEAR = `${date.getFullYear() - 1}-12-30`

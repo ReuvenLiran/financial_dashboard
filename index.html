@@ -4,6 +4,7 @@
 <head>
   <style>
     body {
+      margin: auto 0;
       background-color: #202020;
       color: white;
     }
@@ -26,7 +27,7 @@
       flex-direction: column;
       align-items: center;
       height: 300px;
-      width: 350px;
+      width: 450px;
       margin-right: 20px;
     }
 
@@ -49,6 +50,7 @@
     }
 
     .view {
+      display: none;
       padding: 10px 30px;
       position: fixed;
       top: 0px;
@@ -62,9 +64,8 @@
     }
 
     .charts-container {
-      width: calc(100% - 500px);
-      margin-left: 500px;
       flex-shrink: 0;
+      width: 100%;
     }
 
     #root {
@@ -89,6 +90,52 @@
     .goal {
       font-weight: bold;
     }
+
+    #save-button {
+      float: right;
+      margin-right: 50px;
+      margin-top: 50px;
+    }
+
+    .chart-container {
+      display: flex;
+      flex-grow: 0;
+      flex-shrink: 0;
+      height: 100%;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .legend-container {
+      padding: 10px 20px 20px;
+    }
+
+    .legend-container li {
+      padding: 8px;
+    }
+
+    #distribution-legends {
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .investor-legend {
+      flex-direction: row;
+      margin-right: 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .legend-color-box {
+      display: inline-block;
+      width: 25px;
+      height: 25px;
+      border: 1px solid white;
+      margin-right: 10px;
+    }
   </style>
 
   <!--Import Google Icon Font-->
@@ -100,9 +147,8 @@
 </head>
 
 <body>
-
   <div id="root">
-    <div class="view">
+    <!-- <div class="view">
       <h4>Details</h4>
       <table>
         <tr>
@@ -140,41 +186,32 @@
       <table id="legends">
 
       </table>
-    </div>
+    </div> -->
 
     <div class="charts-container">
+      <button class="waves-effect waves-light btn-large" id="save-button">SAVE</button>
+
+      <div class="row" style="display: none;">
+        <h3 class="header">Plan</h3>
+        <hr>
+        </hr>
+        <div class="charts">
+          <div class="chart-doughnut" id="plan">
+            <h4 class="header">Plan</h4>
+            <div class="chart-container">
+              <canvas id="chart-doughnut-plan"> </canvas>
+              <div class="legend-container" id="legend-container-plan"></div>
+            </div>
+            <h5 class="header goal"></h5>
+          </div>
+        </div>
+      </div>
+
       <div class="row">
         <h3 class="header">Progress and Goals</h3>
         <hr>
         </hr>
-        <div class="charts">
-          <div class="chart-doughnut" id="progress-invested-funds">
-            <h4 class="header">Investments</h4>
-            <canvas id="chart-doughnut-progress-invested-funds"> </canvas>
-            <h5 class="header goal"></h5>
-          </div>
-
-          <div class="chart-doughnut" id="mine-interest-rate-vs-goal-progress">
-            <h4 class="header">My Yield vs. SPY</h4>
-            <canvas id="chart-doughnut-mine-interest-rate-vs-goal-progress"> </canvas>
-            <h5 class="header goal"></h5>
-          </div>
-
-          <div class="chart-doughnut" id="profit-progress">
-            <h4 class="header">Passive Profit</h4>
-            <canvas id="chart-doughnut-profit-progress"> </canvas>
-            <h5 class="header goal"></h5>
-          </div>
-
-          <div class="chart-doughnut" id="total-funds-progress">
-            <h4 class="header">Funds</h4>
-            <canvas id="chart-doughnut-total-funds-progress"> </canvas>
-            <h5 class="header goal"></h5>
-          </div>
-          <!-- <div class="chart-doughnut">
-            <h4 class="header">profit in precentage</h4>
-            <canvas id="chart-doughnut-profit-progress-in-precentage"> </canvas>
-          </div> -->
+        <div class="charts" id="progress-and-goals-charts">
         </div>
       </div>
 
@@ -182,34 +219,20 @@
         <h3 class="header">Distribution</h3>
         <hr>
         </hr>
-
-        <div class="charts">
-          <div class="chart-doughnut">
-            <h4 class="header">Investments</h4>
-            <canvas id="chart-doughnut-invested-funds-per-investor"> </canvas>
-          </div>
-
-          <div class="chart-doughnut">
-            <h4 class="header">Passive Profit</h4>
-            <canvas id="chart-doughnut-current-year-profit"> </canvas>
-          </div>
-
-          <div class="chart-doughnut">
-            <h4 class="header">Funds</h4>
-            <canvas id="chart-doughnut-total-funds"> </canvas>
-          </div>
+        <div id="distribution-legends"></div>
+        <div class="charts" id="distribution-charts">
         </div>
       </div>
 
       <div class="row">
-        <h3 class="header">Profit</h3>
+        <h3 class="header">Return</h3>
         <hr>
         </hr>
         <div class="charts">
           <div class="chart-bar">
-            <h4 class="header">Mine Interest Rate vs SPY vs QQQ</h4>
+            <h4 class="header">My Return vs SPY vs QQQ</h4>
             <div class="chart-bar">
-              <canvas id="chart-bar-mine-interest-rate-vs-qqq-vs-spy"></canvas>
+              <canvas id="chart-bar-my-annual-return-vs-qqq-vs-spy"></canvas>
             </div>
           </div>
           <!-- 
@@ -219,23 +242,23 @@
       </div> -->
         </div>
       </div>
-      <!-- <h4 class="header">Performace of Investment Channels</h4>
-      <hr>
-      </hr> -->
-
-      <div class="row" style="display: none;">
-        <div class="chart-bar">
-          <h4 class="header">Yields of Current Year</h4>
-          <canvas id="chart-bar-mine-interest-rate"> </canvas>
-        </div>
-        <div class="chart-bar">
-          <h4 class="header">Real Yield of Current Year</h4>
-          <canvas id="chart-bar-current-year-profit-in-precentage"> </canvas>
+      <div class="row">
+        <h3 class="header">Performace of Investment Channels</h3>
+        <hr>
+        </hr>
+        <div class="charts">
+          <!-- <div class="chart-bar">
+            <h4 class="header">Yields of Current Year</h4>
+            <canvas id="chart-bar-mine-annual-return"> </canvas>
+          </div> -->
+          <div class="chart-bar">
+            <h4 class="header">Net Return</h4>
+            <canvas id="chart-bar-current-year-net-return"> </canvas>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <script src="./bundle.js"></script>
+    <script src="./bundle.js"></script>
 </body>
 
 </html>

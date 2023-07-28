@@ -8,18 +8,23 @@ export function getProgressCharts({
   investedFunds,
   spy,
 }) {
+  const containerSelector = "#progress-and-goals-charts";
   return [
     {
-      key: "mine-interest-rate-vs-goal-progress",
+      container: containerSelector,
+      name: 'Mine Return vs. SPY',
+      key: "mine-annual-return-vs-goal-progress",
       type: "gauge",
-      progressValue: totalProfitPrecentage,
+      progressValue: Number(totalProfitPrecentage),
       goal: spy,
     },
     {
+      container: containerSelector,
+      name: 'Profit',
       key: "profit-progress",
       type: "gauge",
-      progressValue: totalProfit,
-      goal: DATA.profitGoal,
+      progressValue: Number((totalProfitPrecentage * investedFunds) / 100),
+      goal: (investedFunds * spy) / 100,
     },
     // {
     //   key: "profit-progress-in-precentage",
@@ -28,12 +33,16 @@ export function getProgressCharts({
     //   remainingValue: 10 - totalProfitPrecentage,
     // },
     {
+      container: containerSelector,
+      name: 'Funds',
       key: "total-funds-progress",
       type: "gauge",
       goal: DATA.fundsGoal,
       progressValue: totalFunds,
     },
     {
+      container: containerSelector,
+      name: 'Investments',
       key: "progress-invested-funds",
       type: "gauge",
       goal: totalFunds,
@@ -44,7 +53,7 @@ export function getProgressCharts({
 
 export function getDistributionCharts({ chartsInvestors }) {
   const getInvestorColor = (data) => chartsInvestors[data.dataIndex].color;
-  const investedFunds = chartsInvestors.filter((i) => i.interestRate > 0);
+  const investedFunds = chartsInvestors.filter((i) => i.annualReturn > 0);
   const sumOfFunds = chartsInvestors.reduce((acc, investor) => {
     acc += parseInt(investor.funds);
     return acc;
@@ -62,6 +71,9 @@ export function getDistributionCharts({ chartsInvestors }) {
 
   return [
     {
+      legends: false,
+      name: 'Funds',
+      container: '#distribution-charts',
       key: "total-funds",
       type: "doughnut",
       data: chartsInvestors,
@@ -70,6 +82,9 @@ export function getDistributionCharts({ chartsInvestors }) {
       getBackgorundColor: getInvestorColor,
     },
     {
+      legends: false,
+      container: '#distribution-charts',
+      name: 'Profit',
       key: "current-year-profit",
       type: "doughnut",
       data: chartsInvestors,
@@ -78,6 +93,9 @@ export function getDistributionCharts({ chartsInvestors }) {
       getBackgorundColor: getInvestorColor,
     },
     {
+      legends: false,
+      name: 'Investments',
+      container: '#distribution-charts',
       key: "invested-funds-per-investor",
       type: "doughnut",
       field: "funds",
@@ -90,14 +108,14 @@ export function getDistributionCharts({ chartsInvestors }) {
   ];
 }
 
-export function getProfitPerformanceChart(interestRate, spy, qqq) {
+export function getProfitPerformanceChart(annualReturn, spy, qqq) {
   return {
-    key: "mine-interest-rate-vs-qqq-vs-spy",
+    key: "my-annual-return-vs-qqq-vs-spy",
     type: "bar",
     data: [
       {
         name: "me",
-        value: interestRate,
+        value: annualReturn,
       },
       {
         name: "SPY",
@@ -120,17 +138,50 @@ export function getBarCharts({ chartsInvestors }) {
 
   return [
     {
-      key: "interest-rate",
+      key: "current-year-net-return",
       type: "bar",
       data: chartsInvestors,
-      field: "interestRate",
+      field: "annualNetReturn",
       getBackgorundColor: getInvestorColor,
     },
+  //   {
+  //     key: "current-year-profit-in-precentage",
+  //     type: "bar",
+  //     data: chartsInvestors,
+  //     field: "currentYearProfitInPrecentage",
+  //     getBackgorundColor: getInvestorColor,
+  //   },
+  ];
+}
+
+export function getHorontalBarCharts() {
+  const ETFS = [
     {
-      key: "current-year-profit-in-precentage",
-      type: "bar",
-      data: chartsInvestors,
-      field: "currentYearProfitInPrecentage",
+      name: "SPY",
+      percentage: 65,
+      color: 'red',
+    },
+    {
+      name: "QQQ",
+      percentage: 20,
+      color: COLORS[1],
+    },
+    {
+      name: "EUROPE",
+      percentage: 15,
+      color: COLORS[2],
+    },
+  ];
+
+  const getInvestorColor = (data) => ETFS[data.dataIndex].color;
+
+  return [
+    {
+      legends: true,
+      key: "plan",
+      type: "pie",
+      data: ETFS,
+      field: "percentage",
       getBackgorundColor: getInvestorColor,
     },
   ];

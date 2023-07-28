@@ -14731,57 +14731,47 @@ const registerables = [
 Chart.register(...registerables);
 
 var DATA = {
-  profitGoal: 100000,
-  fundsGoal: 2100000,
-  averageMonthlyIncome: 10000,
-  averageMonthlyExpenses: 9000,
-  investors: [
-    {
-      name: "Harel",
-      funds: 607053,
-      interestRate: 6.18,
-      expenseRates: 0.85,
-    },
-    {
-      name: "Altshuler - Gemel",
-      funds: 127210.65,
-      interestRate: 4.6,
-      expenseRates: 0.25,
-    },
-    {
-      name: "Bank Pikadon",
-      funds: 132000,
-      interestRate: 4.75,
-      expenseRates: 0,
-    },
-    {
-      name: "Mor Hishtalmut",
-      url: "",
-      funds: 168528,
-      interestRate: 5.33,
-      expenseRates: 0.7,
-    },
-    {
-      name: "Mor Gemel",
-      url: "",
-      funds: 287420,
-      interestRate: 6.3,
-      expenseRates: 0.7,
-    },
-    {
-      name: "Cash",
-      funds: 340000,
-      interestRate: 0,
-      expenseRates: 0,
-    },
-    {
-      name: "Meitav Trade",
-      funds: 352000,
-      interestRate: 21,
-      expenseRates: 0,
-    },
-  ],
-};
+    fundsGoal: 1000000,
+    investors: [
+      {
+        name: "Harel",
+        funds: 300000,
+        annualReturn: 5,
+        expenseRates: 0.85,
+      },
+      {
+        name: "Altshuler - Gemel",
+        funds: 100000,
+        annualReturn: 4.6,
+        expenseRates: 0.25,
+      },
+      {
+        name: "Bank Pikadon",
+        funds: 100000,
+        annualReturn: 4.75,
+        expenseRates: 0,
+      },
+      {
+        name: "Mor Hishtalmut",
+        funds: 200000,
+        annualReturn: 5.33,
+        expenseRates: 0.7,
+      },
+      {
+        name: "Mor Gemel",
+        url: "",
+        funds: 100000,
+        annualReturn: 6.3,
+        expenseRates: 0.7,
+      },
+      {
+        name: "Cash",
+        funds: 50000,
+        annualReturn: 0,
+        expenseRates: 0,
+      },
+    ],
+  };
 
 const RED = "#FF0000";
 const ORANGE = "#FF8C00";
@@ -14824,8 +14814,8 @@ const COLORS = [
   PINK2,
   BLUE1,
   RED2,
-  PURPLE2,
   GREEN2,
+  PURPLE2,
 
   YELLOW2,
   LIGHT_BLUE1,
@@ -14859,7 +14849,7 @@ const COLORS = [
 ];
 const date = new Date();
 
-const API_KEY = 'N6S96A7YBV0JUZNO';
+const API_KEY = 'MY_API_KEY';
 const LAST_DAY_OF_LAST_YEAR = `${date.getFullYear() - 1}-12-30`;
 
 function getProgressCharts({
@@ -14869,18 +14859,23 @@ function getProgressCharts({
   investedFunds,
   spy,
 }) {
+  const containerSelector = "#progress-and-goals-charts";
   return [
     {
-      key: "mine-interest-rate-vs-goal-progress",
+      container: containerSelector,
+      name: 'Mine Return vs. SPY',
+      key: "mine-annual-return-vs-goal-progress",
       type: "gauge",
-      progressValue: totalProfitPrecentage,
+      progressValue: Number(totalProfitPrecentage),
       goal: spy,
     },
     {
+      container: containerSelector,
+      name: 'Profit',
       key: "profit-progress",
       type: "gauge",
-      progressValue: totalProfit,
-      goal: DATA.profitGoal,
+      progressValue: Number((totalProfitPrecentage * investedFunds) / 100),
+      goal: (investedFunds * spy) / 100,
     },
     // {
     //   key: "profit-progress-in-precentage",
@@ -14889,12 +14884,16 @@ function getProgressCharts({
     //   remainingValue: 10 - totalProfitPrecentage,
     // },
     {
+      container: containerSelector,
+      name: 'Funds',
       key: "total-funds-progress",
       type: "gauge",
       goal: DATA.fundsGoal,
       progressValue: totalFunds,
     },
     {
+      container: containerSelector,
+      name: 'Investments',
       key: "progress-invested-funds",
       type: "gauge",
       goal: totalFunds,
@@ -14905,7 +14904,7 @@ function getProgressCharts({
 
 function getDistributionCharts({ chartsInvestors }) {
   const getInvestorColor = (data) => chartsInvestors[data.dataIndex].color;
-  const investedFunds = chartsInvestors.filter((i) => i.interestRate > 0);
+  const investedFunds = chartsInvestors.filter((i) => i.annualReturn > 0);
   const sumOfFunds = chartsInvestors.reduce((acc, investor) => {
     acc += parseInt(investor.funds);
     return acc;
@@ -14923,6 +14922,9 @@ function getDistributionCharts({ chartsInvestors }) {
 
   return [
     {
+      legends: false,
+      name: 'Funds',
+      container: '#distribution-charts',
       key: "total-funds",
       type: "doughnut",
       data: chartsInvestors,
@@ -14931,6 +14933,9 @@ function getDistributionCharts({ chartsInvestors }) {
       getBackgorundColor: getInvestorColor,
     },
     {
+      legends: false,
+      container: '#distribution-charts',
+      name: 'Profit',
       key: "current-year-profit",
       type: "doughnut",
       data: chartsInvestors,
@@ -14939,6 +14944,9 @@ function getDistributionCharts({ chartsInvestors }) {
       getBackgorundColor: getInvestorColor,
     },
     {
+      legends: false,
+      name: 'Investments',
+      container: '#distribution-charts',
       key: "invested-funds-per-investor",
       type: "doughnut",
       field: "funds",
@@ -14951,14 +14959,14 @@ function getDistributionCharts({ chartsInvestors }) {
   ];
 }
 
-function getProfitPerformanceChart(interestRate, spy, qqq) {
+function getProfitPerformanceChart(annualReturn, spy, qqq) {
   return {
-    key: "mine-interest-rate-vs-qqq-vs-spy",
+    key: "my-annual-return-vs-qqq-vs-spy",
     type: "bar",
     data: [
       {
         name: "me",
-        value: interestRate,
+        value: annualReturn,
       },
       {
         name: "SPY",
@@ -14981,31 +14989,201 @@ function getBarCharts({ chartsInvestors }) {
 
   return [
     {
-      key: "interest-rate",
+      key: "current-year-net-return",
       type: "bar",
       data: chartsInvestors,
-      field: "interestRate",
+      field: "annualNetReturn",
       getBackgorundColor: getInvestorColor,
     },
+  //   {
+  //     key: "current-year-profit-in-precentage",
+  //     type: "bar",
+  //     data: chartsInvestors,
+  //     field: "currentYearProfitInPrecentage",
+  //     getBackgorundColor: getInvestorColor,
+  //   },
+  ];
+}
+
+function getHorontalBarCharts() {
+  const ETFS = [
     {
-      key: "current-year-profit-in-precentage",
-      type: "bar",
-      data: chartsInvestors,
-      field: "currentYearProfitInPrecentage",
+      name: "SPY",
+      percentage: 65,
+      color: 'red',
+    },
+    {
+      name: "QQQ",
+      percentage: 20,
+      color: COLORS[1],
+    },
+    {
+      name: "EUROPE",
+      percentage: 15,
+      color: COLORS[2],
+    },
+  ];
+
+  const getInvestorColor = (data) => ETFS[data.dataIndex].color;
+
+  return [
+    {
+      legends: true,
+      key: "plan",
+      type: "pie",
+      data: ETFS,
+      field: "percentage",
       getBackgorundColor: getInvestorColor,
     },
   ];
 }
 
+function createDougnutChartDOM(key, name) {
+    const chartContianer = document.createElement('div');
+    chartContianer.classList.add('chart-doughnut');
+    chartContianer.id = key;
+
+    chartContianer.innerHTML = `
+        <h4 class="header">${name}</h4>
+        <div class="chart-container">
+            <canvas id="chart-doughnut-${key}"></canvas>
+            <div class="legend-container" id="legend-container-${key}"></div>
+        </div>
+   `;
+
+    return chartContianer;
+}
+
+function createGaugeChartDOM(key, name) {
+    const chartContianer = document.createElement('div');
+    chartContianer.classList.add('chart-doughnut');
+    chartContianer.id = key;
+
+    chartContianer.innerHTML = `
+        <h4 class="header">${name}</h4>
+        <canvas id="chart-doughnut-${key}"></canvas>
+        <h5 class="header goal"></h5>
+   `;
+
+    return chartContianer;
+}
+
+const getOrCreateLegendList = (chart, id) => {
+  const legendContainer = document.getElementById(id);
+
+  if (legendContainer) {
+    let listContainer = legendContainer.querySelector("ul");
+
+    if (!listContainer) {
+      listContainer = document.createElement("ul");
+      legendContainer.appendChild(listContainer);
+    }
+    return listContainer;
+  }
+  return null;
+};
+
+const htmlLegendPlugin = {
+  id: "htmlLegend",
+  afterUpdate(chart, args, options) {
+    const ul = getOrCreateLegendList(chart, options.containerID);
+    if (ul) {
+      // Remove old legend items
+      while (ul.firstChild) {
+        ul.firstChild.remove();
+      }
+
+      // Reuse the built-in legendItems generator
+      const items = chart.options.plugins.legend.labels.generateLabels(chart);
+
+      items.forEach((item) => {
+        const li = document.createElement("li");
+        li.style.alignItems = "center";
+        li.style.cursor = "pointer";
+        li.style.display = "flex";
+        li.style.flexDirection = "row";
+        li.style.marginLeft = "10px";
+
+        li.onclick = () => {
+          const { type } = chart.config;
+          if (type === "pie" || type === "doughnut") {
+            // Pie and doughnut charts only have a single dataset and visibility is per item
+            chart.toggleDataVisibility(item.index);
+          } else {
+            chart.setDatasetVisibility(
+              item.datasetIndex,
+              !chart.isDatasetVisible(item.datasetIndex)
+            );
+          }
+          chart.update();
+        };
+
+        // Color box
+        const boxSpan = document.createElement("span");
+        boxSpan.style.background = item.fillStyle;
+        boxSpan.style.borderColor = item.strokeStyle;
+        boxSpan.style.borderWidth = item.lineWidth + "px";
+        boxSpan.style.display = "inline-block";
+        boxSpan.style.flexShrink = 0;
+        boxSpan.style.height = "20px";
+        boxSpan.style.marginRight = "10px";
+        boxSpan.style.width = "20px";
+
+        // Text
+        const textContainer = document.createElement("p");
+        textContainer.style.color = "white"; // item.fontColor;
+        textContainer.style.margin = 0;
+        textContainer.style.padding = 0;
+        textContainer.style.textDecoration = item.hidden ? "line-through" : "";
+
+        const text = document.createTextNode(item.text);
+        textContainer.appendChild(text);
+
+        li.appendChild(boxSpan);
+        li.appendChild(textContainer);
+        ul.appendChild(li);
+      });
+    }
+  },
+};
+
+function getCurrentYearAndMonth() {
+  const now = new Date();
+  const year = now.getFullYear();
+  let month = now.getMonth() + 1; // Note: January is month 0 in JavaScript
+
+  // Adding a leading zero for single-digit months (e.g., 1 becomes 01)
+  if (month < 10) {
+    month = `0${month}`;
+  }
+
+  return `${year}-${month}`;
+}
+
+function saveData() {
+  getData().then((history) => {
+    const dateKey = getCurrentYearAndMonth();
+    history[dateKey] = DATA;
+    localStorage.setItem("history", JSON.stringify(history));
+    alert("Saved");
+  });
+}
+
+function getData() {
+  const data = localStorage.getItem("history");
+  const history = JSON.parse(data || "{}");
+  return Promise.resolve(history);
+}
+
 let investors = [];
 
-function calculateInvestmentProfit(amount, yieldPercentage, expenseRate) {
+function calculateInvestmentProfit(amount, myReturn, expenseRate) {
   // Convert the percentage values to decimals
-  const yieldDecimal = yieldPercentage / 100;
+  const returnDecimal = myReturn / 100;
   const expenseDecimal = expenseRate / 100;
 
   // Calculate the returns and expenses
-  const returns = amount * yieldDecimal;
+  const returns = amount * returnDecimal;
   const expenses = (returns + amount) * expenseDecimal;
 
   // Calculate the profit
@@ -15084,51 +15262,13 @@ function buildBarChart(chart) {
   });
 }
 
-function printLegends(investors) {
-  const legendsTable = document.getElementById("legends");
-  const renderCells = (name, profit, interestRate, color) => `
-  <td>
-  <div class="legend-color" style="background-color: ${color};"></div>
-  </td>
-  <td>
-    ${name}
-  </td>
-  <td id="profit-value">
-    ${parseInt(profit)} (${interestRate}%)
-  </td>
-`;
-
-  investors.forEach((investor) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = renderCells(
-      investor.name,
-      investor.currentYearProfit,
-      investor.interestRate,
-      investor.color
-    );
-    legendsTable.appendChild(tr);
-  });
-}
-
-function printDetails(funds, profit, interestRate, qqq, spy) {
-  const fundsElem = document.getElementById("funds-value");
-  const profitElem = document.getElementById("profit-value");
-  const spyElem = document.getElementById("spy-value");
-  const qqqElem = document.getElementById("qqq-value");
-
-  fundsElem.textContent = funds;
-  profitElem.textContent = `${profit} (${interestRate}%)`;
-  spyElem.textContent = qqq + "%";
-  qqqElem.textContent = spy + "%";
-}
-
 function addTextInsideDoughnut(chart, text) {
   var width = chart.width,
     height = chart.height,
     ctx = chart.ctx;
 
   ctx.restore();
-  var fontSize = (height / 150).toFixed(2);
+  var fontSize = (height / 210).toFixed(2);
   ctx.font = fontSize + "em sans-serif";
   ctx.fillStyle = "white";
 
@@ -15142,16 +15282,22 @@ function addTextInsideDoughnut(chart, text) {
 }
 
 function buildDougthnutChart(chart) {
-  const { data, field, getBackgorundColor, key, text } = chart;
+  const { legends, data, field, getBackgorundColor, key, text, type } = chart;
 
+  if (!legends) {
+    const legendsElem = document.getElementById(`legend-container-${key}`);
+    if (legendsElem) {
+      legendsElem.style.display = "none";
+    }
+  }
   new Chart(document.getElementById(`chart-doughnut-${key}`), {
-    type: "doughnut",
+    type,
     data: getDataForChart(data, field, field, getBackgorundColor),
     options: {
-      responsive: true,
       plugins: {
-        datalabels: {
-          display: true,
+        htmlLegend: {
+          // ID of the container to put the legend in
+          containerID: `legend-container-${key}`,
         },
         legend: {
           display: false,
@@ -15162,33 +15308,32 @@ function buildDougthnutChart(chart) {
       {
         id: "text",
         beforeDraw: function (chart) {
-          addTextInsideDoughnut(chart, text);
+          type === "doughnut" ? addTextInsideDoughnut(chart, text) : null;
         },
       },
+      legends ? htmlLegendPlugin : false,
     ],
   });
 }
 
 function buildGauge(chart) {
   const { key, progressValue, goal } = chart;
-
   const remainingValue = Math.ceil(goal - progressValue);
 
   const goalText = `Goal: ${goal.toLocaleString()}`;
   document.querySelector(`#${key} .goal`).textContent = goalText;
-
   buildDougthnutChart({
     key,
     type: "doughnut",
-    text: progressValue.toLocaleString(),
+    text: Math.ceil(progressValue).toLocaleString(),
     data: [
       {
         name: "Progress",
-        value: progressValue,
+        value: progressValue.toFixed(2),
       },
       {
         name: "Remaining",
-        value: remainingValue < 0 ? 0 : remainingValue,
+        value: remainingValue < 0 ? 0 : remainingValue.toFixed(2),
       },
     ],
     field: "value",
@@ -15221,18 +15366,18 @@ function init(spy, qqq) {
   let investedFunds = 0;
 
   const chartsInvestors = investors.map((investor, index) => {
-    const { funds, interestRate, expenseRates } = investor;
+    const { funds, annualReturn, expenseRates } = investor;
     investor.currentYearProfit = calculateInvestmentProfit(
       funds,
-      interestRate,
+      annualReturn,
       expenseRates
     );
     investor.color = COLORS[index];
-    investor.currentYearProfitInPrecentage =
-      (investor.currentYearProfit / funds) * 100;
+    investor.annualNetReturn = (investor.currentYearProfit / funds) * 100;
+  
     totalProfit += Math.ceil(investor.currentYearProfit);
     totalFunds += Math.ceil(funds);
-    investedFunds += interestRate > 0 ? Math.ceil(funds) : 0;
+    investedFunds += annualReturn > 0 ? Math.ceil(funds) : 0;
     return investor;
   });
 
@@ -15241,7 +15386,10 @@ function init(spy, qqq) {
     100
   ).toFixed(2);
 
+  addDistributionLegends(chartsInvestors);
+
   const chartsToRender = [
+    ...getHorontalBarCharts(),
     ...getBarCharts({
       chartsInvestors,
     }),
@@ -15261,18 +15409,29 @@ function init(spy, qqq) {
   chartsToRender.forEach((chart) => {
     if (chart.type === "bar") {
       buildBarChart(chart);
-    } else if (chart.type === "doughnut") {
+    } else if (chart.type === "doughnut" || chart.type === "pie") {
+      if (chart.container) {
+        const container = document.querySelector(chart.container);
+        container.appendChild(createDougnutChartDOM(chart.key, chart.name));
+      }
       buildDougthnutChart(chart);
     } else if (chart.type === "gauge") {
+      if (chart.container) {
+        const container = document.querySelector(chart.container);
+        container.appendChild(createGaugeChartDOM(chart.key, chart.name));
+      }
       buildGauge(chart);
     }
   });
 
-  printDetails(totalFunds, totalProfit, totalProfitPrecentage, spy, qqq);
+  // printDetails(totalFunds, totalProfit, totalProfitPrecentage, spy, qqq);
 
-  printLegends(chartsInvestors);
+  // printLegends(chartsInvestors);
 }
 window.onload = function () {
+  const saveButton = document.getElementById("save-button");
+  saveButton.addEventListener("click", saveData);
+
   imporantETF().then(([spy, qqq]) => {
     init(spy, qqq);
   });
@@ -15333,4 +15492,25 @@ async function fetchSPYData(symbol) {
 
 async function imporantETF() {
   return Promise.all([fetchSPYData("SPY"), fetchSPYData("QQQ")]);
+}
+
+
+function addDistributionLegends(investors) {
+  const legends = document.getElementById("distribution-legends");
+  investors.forEach(investor => {
+    const investorLegend = document.createElement("span");
+    investorLegend.classList.add('investor-legend');
+    const colorBox = document.createElement("span");
+    colorBox.classList.add('legend-color-box');
+    colorBox.style.width = '20px';
+    colorBox.style.height = '20px';
+    colorBox.style.backgroundColor = investor.color;
+    investorLegend.appendChild(colorBox);
+  
+    const text = document.createElement("span");
+    text.textContent = investor.name;
+    investorLegend.appendChild(text);
+    legends.appendChild(investorLegend);
+  });
+
 }
