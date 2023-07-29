@@ -158,12 +158,11 @@ function getDataForChart(data, field, label, backgroundColor) {
 }
 
 function findLowestAndHighestValues(arr) {
-  console.log("FFFFF", arr)
   let lowestValue = arr[0];
   let highestValue = arr[0];
 
   for (let i = 1; i < arr.length; i++) {
-    const currentValue = arr[i].value;
+    const currentValue = arr[i];
     if (currentValue < lowestValue) {
       lowestValue = currentValue;
     }
@@ -172,7 +171,6 @@ function findLowestAndHighestValues(arr) {
     }
   }
 
-  console.log("GGGGGG", lowestValue)
   return {
     lowest: lowestValue,
     highest: highestValue,
@@ -185,7 +183,6 @@ function buildBarChart(chart) {
   const { lowest, highest } = findLowestAndHighestValues(
     data.map((d) => Number(d[field]))
   );
-  console.log("SSSSSS", highest, data, field)
   new Chart(document.getElementById(`chart-bar-${key}`), {
     type: "bar",
     data: getDataForChart(data, field, `${field} (%)`, getBackgorundColor),
