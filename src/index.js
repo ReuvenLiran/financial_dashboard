@@ -8,6 +8,8 @@ import {
   RED,
   ORANGE,
   API_KEY,
+  DEEP_PINK,
+  TEAL1,
 } from "./consts";
 import {
   getProgressCharts,
@@ -17,6 +19,26 @@ import {
   getHorontalBarCharts,
 } from "./charts";
 import { createDougnutChartDOM, createGaugeChartDOM } from "./dom";
+
+const currentJSONversion = 2;
+
+function getLastDayOfMonthFiveYearsAgo() {
+  // Parse the input date string into a Date object
+  const date = new Date();
+
+  // Subtract 5 years from the given date
+  date.setFullYear(date.getFullYear() - 5);
+
+  // Set the day to 0 to get the last day of the previous month
+  date.setDate(0);
+
+  // Format the date as "dd.mm.yyyy"
+  const day = date.getDate().toString().padStart(2, "0");
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const year = date.getFullYear().toString();
+
+  return `${year}-${month}-`;
+}
 
 const getOrCreateLegendList = (chart, id) => {
   const legendContainer = document.getElementById(id);
@@ -183,6 +205,11 @@ function buildBarChart(chart) {
   const { lowest, highest } = findLowestAndHighestValues(
     data.map((d) => Number(d[field]))
   );
+
+  data.sort((a, b) => {
+    return b[field] - a[field];
+  });
+
   new Chart(document.getElementById(`chart-bar-${key}`), {
     type: "bar",
     data: getDataForChart(data, field, `${field} (%)`, getBackgorundColor),
@@ -362,7 +389,7 @@ function init(spy, qqq) {
     );
     investor.color = COLORS[index];
     investor.annualNetReturn = (investor.currentYearProfit / funds) * 100;
-  
+
     totalProfit += Math.ceil(investor.currentYearProfit);
     totalFunds += Math.ceil(funds);
     investedFunds += annualReturn > 0 ? Math.ceil(funds) : 0;
@@ -379,7 +406,21 @@ function init(spy, qqq) {
   const chartsToRender = [
     ...getHorontalBarCharts(),
     ...getBarCharts({
-      chartsInvestors,
+      chartsInvestors: [
+        ...chartsInvestors,
+        {
+          name: "SPY",
+          last5yearsReturn: spy.fiveYearsReturn,
+          color: TEAL1,
+          annualNetReturn: spy.returnYTD,
+        },
+        {
+          name: "QQQ",
+          color: DEEP_PINK,
+          last5yearsReturn: qqq.fiveYearsReturn,
+          annualNetReturn: qqq.returnYTD,
+        },
+      ],
     }),
     ...getDistributionCharts({
       chartsInvestors,
@@ -389,9 +430,13 @@ function init(spy, qqq) {
       totalProfitPrecentage,
       totalFunds,
       investedFunds,
-      spy,
+      spy: spy.returnYTD,
     }),
-    getProfitPerformanceChart(totalProfitPrecentage, spy, qqq),
+    getProfitPerformanceChart(
+      totalProfitPrecentage,
+      spy.returnYTD,
+      qqq.returnYTD
+    ),
   ];
 
   chartsToRender.forEach((chart) => {
@@ -436,42 +481,60 @@ function getCurrentDate() {
 }
 
 async function fetchSPYData(symbol) {
+  const fiveYearsAgoDate = getLastDayOfMonthFiveYearsAgo();
   const savedSymbol = localStorage.getItem(symbol);
   if (savedSymbol) {
-    const { date, interest } = JSON.parse(savedSymbol);
-    if (date === getCurrentDate()) {
-      return Promise.resolve(interest);
+    const { date, interest, returnYTD, fiveYearsReturn, version } =
+      JSON.parse(savedSymbol);
+    if (date === getCurrentDate() && currentJSONversion === version) {
+      return Promise.resolve({ returnYTD, fiveYearsReturn });
     }
   }
+
   const endpoint = `https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=${symbol}&apikey=${API_KEY}`;
   try {
     const response = await fetch(endpoint);
     const data = await response.json();
-
-    let startDatePrice;
-    let endDatePrice;
 
     const metaData = data["Meta Data"];
     const latestRefreshedDate = metaData["3. Last Refreshed"];
     const timeSeries = data["Monthly Time Series"];
 
     const lastDate = timeSeries[latestRefreshedDate];
-    endDatePrice = parseFloat(lastDate["4. close"]);
+    const endDatePrice = parseFloat(lastDate["4. close"]);
+    const timeSeriesDates = Object.keys(timeSeries);
+    const fiveYearsDay = timeSeriesDates.find((d) =>
+      d.includes(fiveYearsAgoDate)
+    );
 
-    const startDate = timeSeries[LAST_DAY_OF_LAST_YEAR];
-    startDatePrice = parseFloat(startDate["4. close"]);
-    const returnPercentage =
-      ((endDatePrice - startDatePrice) / startDatePrice) * 100;
-    const interest = Math.ceil(returnPercentage);
+    const fiveYearsAgoDateData = timeSeries[fiveYearsDay];
+    const fiveYearsAgoPrice = parseFloat(fiveYearsAgoDateData["4. close"]);
+
+    const startDateData = timeSeries[LAST_DAY_OF_LAST_YEAR];
+    const startDatePrice = parseFloat(startDateData["4. close"]);
+
+    const returnYTD = ((endDatePrice - startDatePrice) / startDatePrice) * 100;
+
+    const fiveYearsReturn =
+      ((endDatePrice - fiveYearsAgoPrice) / fiveYearsAgoPrice) * 100;
+
+    const returnYTDFixed = returnYTD.toFixed(2);
+    const interest = returnYTDFixed;
 
     localStorage.setItem(
       symbol,
       JSON.stringify({
+        version: 2,
         interest,
+        fiveYearsReturn,
+        returnYTD,
         date: getCurrentDate(),
       })
     );
-    return interest;
+    return {
+      returnYTDFixed,
+      interest,
+    };
   } catch (error) {
     console.error("Error fetching data:", error.message);
     return 0;
@@ -482,23 +545,21 @@ async function imporantETF() {
   return Promise.all([fetchSPYData("SPY"), fetchSPYData("QQQ")]);
 }
 
-
 function addDistributionLegends(investors) {
   const legends = document.getElementById("distribution-legends");
-  investors.forEach(investor => {
+  investors.forEach((investor) => {
     const investorLegend = document.createElement("span");
-    investorLegend.classList.add('investor-legend');
+    investorLegend.classList.add("investor-legend");
     const colorBox = document.createElement("span");
-    colorBox.classList.add('legend-color-box');
-    colorBox.style.width = '20px';
-    colorBox.style.height = '20px';
+    colorBox.classList.add("legend-color-box");
+    colorBox.style.width = "20px";
+    colorBox.style.height = "20px";
     colorBox.style.backgroundColor = investor.color;
     investorLegend.appendChild(colorBox);
-  
+
     const text = document.createElement("span");
     text.textContent = investor.name;
     investorLegend.appendChild(text);
     legends.appendChild(investorLegend);
-  })
-
+  });
 }

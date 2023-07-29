@@ -144,13 +144,13 @@ export function getBarCharts({ chartsInvestors }) {
       field: "annualNetReturn",
       getBackgorundColor: getInvestorColor,
     },
-  //   {
-  //     key: "current-year-profit-in-precentage",
-  //     type: "bar",
-  //     data: chartsInvestors,
-  //     field: "currentYearProfitInPrecentage",
-  //     getBackgorundColor: getInvestorColor,
-  //   },
+    {
+      key: "5-years-returns",
+      type: "bar",
+      data: chartsInvestors,
+      field: "last5yearsReturn",
+      getBackgorundColor: getInvestorColor,
+    },
   ];
 }
 
